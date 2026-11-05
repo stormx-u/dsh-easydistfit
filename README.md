@@ -1,0 +1,109 @@
+# DistFit — 分布拟合面板（DeepSeek Harness 插件）
+
+把一份数值表变成「分布拟合报告」的 DSH 插件：多列数据 → 同时拟合 **23 个分布族** → 多准则拟合优度检验（K-S / A-D / CvM / χ²）→ AIC 排名与交互图表 → AI 解读 → 导出 CSV / Markdown / JSON；图表可按**论文 / PPT 模板**调整样式后导出 SVG / PNG / JPG / PDF，也能用一句话让 AI 改图。
+
+界面是 GUI 左侧栏的独立面板「分布拟合」，点开即用；同时注册了 `distfit_fit` 工具，让对话里的助手也能直接拟合数据并给出排名建议。
+
+![密度图与排名](docs/screenshots/01-density.png)
+
+![AI 解读](docs/screenshots/05-ai.png)
+
+![P-P 图](docs/screenshots/02-pp.png)
+
+![图表导出](docs/screenshots/07-export.png)
+
+![柱形图样式](docs/screenshots/14-bar-controls.png)
+
+![柱体颜色](docs/screenshots/15-bar-color.png)
+
+![默认柱形观感](docs/screenshots/13-bars-default.png)
+
+![出图模板](docs/screenshots/10-templates.png)
+
+![AI 调整样式](docs/screenshots/12-ai-style.png)
+
+![暗色主题](docs/screenshots/03-dark.png)
+
+![小样本提醒](docs/screenshots/04-small-sample.png)
+
+## 功能
+
+- **数据**：粘贴 CSV / TSV（首行为列名）或直接粘贴从 Excel 复制出的多列数据；多列各自独立拟合，空值 / 非数值自动剔除，按 IQR 规则剔除离群点并给出剔除数量。
+- **23 个分布族**：正态、Logistic、Laplace、Cauchy、均匀、对数正态、Gamma、Weibull、指数、Rayleigh、逆高斯、对数 Logistic、Lomax(Pareto II)、Burr XII、疲劳寿命(BS)、Nakagami、Maxwell、χ²、半正态、Beta、Gumbel、GEV、GPD。按「位置-尺度型 / 正偏寿命型 / 极值型 / 有界与其他」分组，可勾选、可一键全选，也可只用「常用」六族。
+- **估计**：极大似然（矩估计初值 + 网格细化 + 数值最小化），参数估计值会以 `μ 位置=…, σ 尺度=…` 的中文形式直接写在表里；置信区间/分位数与经验分位数并列对照。
+- **检验**：K-S、A-D、CvM、χ²，默认渐近 p 值，可切换「蒙特卡洛校准」（B=999 参数自举，慢一些但更准）；表里的 p 值可以按列勾选显示。
+- **排名**：AIC / BIC / ΔAIC / Akaike 权重，可按 AIC、BIC 或 K-S p 排序；结论列给出「接受 / 部分拒绝 / 拒绝」。
+- **图**：直方图 + 各分布 PDF 曲线、CDF 对比、P-P、Q-Q 四个页签，全部矢量 SVG；悬停显示该分箱的频数、密度与各分布密度；图例可点选高亮某条曲线，曲线多时自动折叠成「+N 条曲线」。
+- **小样本提示**：n < 15 时顶部出现提醒，3–4 参数族（Beta / Burr / GPD 等）在排名里带 ⚠ 标记，避免少样本过拟合结论被当成定论。
+- **AI 解读**：每次算出结果后，面板自动把统计摘要交给 DSH 的模型通道，生成「数据说明了什么 / 推荐分布与依据 / 风险与注意事项 / 下一步建议」四段式解读，直接显示在 KPI 卡片下方。第一段专门用工程语言讲这组数据本身的特征——中心与离散、偏斜方向、尾部与极值、取值范围、直方图是否单峰/有空档——以及这些特征意味着什么（哪列更稳、哪里可能有异常批次、高端或低端风险），每个判断都绑定摘要里的数字；后面三段再讲分布选择、风险与下一步。可手动「重新分析」，也会写进导出的 Markdown 报告。模型调用在 Host 半边完成，浏览器拿不到任何凭据。
+- **图表导出**：图表卡片右上角「导出图」打开导出对话框——左侧是所见即所得预览，右侧三页签：**模板 / 样式 / AI 调整**。尺寸可选 1280×720（16:9 幻灯片）/ 1600×900 / 1200×800 / 2400×1350 / 900×600 / 自定义，字号 0.5×–5×、线宽 0.3×–6×、图例字号、位图倍率 1×/2×/3×；可切换灰度图（按 BT.601 亮度换算，适合黑白印刷）、网格线、柱体描边、透明背景、坐标轴（L 形 / 四边全框）、图例位置（下方 / 右侧 / 不显示）与图注标题；柱形图还能单独调**填充深浅（浅 / 中 / 深 / 空心）、柱间距 0–40 px、柱体圆角 0–40 px、柱体颜色**（取色器任选，或点「跟随主题」回到主题色），默认「浅色 + 细描边 + 2 px 间隙 + 3 px 圆角」比原来的实心灰柱更轻；一次可导出 **SVG（矢量，文字仍是文字）/ PNG / JPG / PDF**，文件名形如 `distfit-木材-density-20261105-151543.pdf`。暗色主题下导出的图会自动把浅色文字与参考线换成适合白底的深色。
+- **出图模板**：内置「默认（彩色·网格）/ 中文期刊·双栏 / 英文期刊·单栏 / 学位论文 / 演示文稿·16:9 / 演示文稿·透明底 / 黑白打印」七套预设，点一下就把字体（宋体+Times、黑体、Times、Okabe-Ito 色盲友好配色等）、尺寸、字号线宽、坐标轴与图例一起换掉；字号线宽随画布宽度配套放大（1800 px→约 3× 字号），缩进论文栏宽后依然清晰。当前样式可存成自己的模板（存 `localStorage`，可删除），下次一键复用。预览就是导出结果（离屏按导出像素真实渲染再序列化），不会出现「预览好看、导出变小」。
+- **AI 调整图表**：在「AI 调整」页签里用一句话描述用途（例如「投中文核心期刊，双栏，灰度可打印，字号大一些」「组会 PPT，深色底，字要大」），Host 半边的模型会把需求翻译成一次样式补丁（可同时指定预设 + 覆盖字段），应用到预览并给出中文说明；模型只改样式字段，数据与统计结果永远不动。同样在 Host 半边调用模型，浏览器不接触凭据。
+- **导出**：排名表 → CSV；完整结果（参数、AIC、各项检验 p 值）→ JSON；一键生成 Markdown 报告（含 AI 解读）；「复制摘要」把当前列的结论写进剪贴板。
+- **暗色主题**：跟随 GUI 明暗模式，所有颜色走主题变量。
+
+## 安装
+
+已在 DSH Desktop 的 `web` profile 中安装。从本仓库安装（把 `<本仓库路径>` 换成你 clone 下来的目录）：
+
+```bash
+dsh plugin --profile web add link:"<本仓库路径>"
+```
+
+或在 GUI「插件」页里安装本地目录 / 安装仓库目录。安装后左侧栏出现「分布拟合」图标，点开即用；客户端改动刷新页面即可，Host 半边改动（工具、AI 路由）需要重启一次 DSH。
+
+## 结构
+
+```
+dsh-distfit/
+  package.json          # dsh.bundle / dsh.client / exports 声明
+  cordis.patch.yml      # 把插件插入 profile
+  build.mjs             # esbuild：src/client/index.jsx → lib/client.js（DSH loader 外壳）
+  src/host/index.js     # Host 半边：distfit_fit 工具 + /api/dsh-distfit/* 路由
+  src/host/explain.js   # Host 半边：AI 解读（提示词、模型选择、流式调用 llm 服务）
+  src/host/chartStyle.js # Host 半边：AI 图表样式（字段白名单、解析、路由处理）
+  src/engine/           # 纯 JS 统计引擎（浏览器与 Host 共用，无第三方依赖）
+    special.js          # 特殊函数（Γ/不完全 Γ、不完全 β、erf、正态/χ² 分位…）
+    distributions.js    # 23 个分布族：拟合、PDF、CDF、分位数、参数文本
+    stats.js            # 描述统计、分位数、直方图、经验分布
+    tests.js            # K-S / A-D / CvM / χ² + 参数自举
+    analyze.js          # 编排：拟合、排名、曲线网格、P-P/Q-Q、告警
+  src/client/           # 浏览器半边
+    index.jsx           # 注册侧栏图标 + 中央面板
+    ui/App.jsx          # 面板界面
+    ui/aiSummary.js     # 交给 AI 的结果摘要（样本形态 + AIC 排名 + p 值）
+    ui/charts.jsx       # 四个图表组件（支持样式化：字体、配色、坐标轴、图例）
+    ui/chartStyle.js    # 出图模板与样式：预设、样式归一化、localStorage 自定义模板
+    ui/chartLegend.js   # 图内图例排版（换行、溢出、绘图区缩进）
+    ui/exportPanel.jsx  # 导出对话框：模板 / 样式 / AI 调整三页签 + 实时预览
+    ui/chartExport.js   # 图表导出：内联样式克隆、灰度转换、SVG→PNG/JPG、手写 PDF
+    ui/chartkit.js      # 比例尺 / 刻度 / 路径（无 React 依赖）
+    ui/formulas.js      # 分布说明与密度公式
+    ui/styles.js        # 全部样式（主题变量）
+    ui/sample.js        # 内置示例数据
+```
+
+## 开发
+
+```bash
+node build.mjs                 # 构建 lib/client.js（改客户端后必须重新构建）
+npm test                       # 八套自检：引擎、端到端统计、Host 工具、AI 摘要、图表导出、图例、样式、客户端包冒烟
+npm run test:chart             # 只跑图表导出（灰度换算、文件名、PDF 结构）
+```
+
+引擎是纯 JS（不依赖 scipy），面板里的计算全在浏览器内完成，所以拖动阈值、切换曲线都是即时反馈；Host 半边的同一份引擎供 `distfit_fit` 工具使用。
+
+## AI 解读的模型来源
+
+面板不自己保存任何密钥：`POST /api/dsh-distfit/explain` 进入 Host 后，用 DSH 的 `llm` 服务按「助手当前默认模型」发起一次短补全（`agentDefaultModel` 优先，取不到时自动挑一个可用 provider/model）。所以只要当前 profile 里的模型通道可用，AI 解读就能用；换模型、换 provider 都跟随 DSH 设置，不需要改插件。
+
+Host 半边的代码在进程启动时加载：**升级插件版本后需要重启一次 DSH**，面板里的 AI 卡片才会工作（客户端改动只需刷新页面）。
+
+## 图表样式与 AI 调整
+
+导出对话框里的样式是纯数据（`chartStyle.js` 的 `STYLE_DEFAULTS`）：字体栈、字号/线宽倍率、配色（default / cvd / mono / warm / gray）、灰度、网格、坐标轴、图例位置与字号、图注标题、柱体填充深浅/间距（0–40 px）/圆角（0–40 px）/颜色/描边、透明背景、画布尺寸。模板只是预设的样式补丁，所以「选模板 → 微调 → 保存为我的模板」是同一套机制，AI 也只需要输出一个样式补丁（颜色由你手动挑，AI 不改配色细节）。
+
+- **预览即导出**：对话框把当前图表离屏渲染到 `.df-export-stage` 隐藏容器里（尺寸 = 导出像素），再用 `buildExportSvg` 序列化同一份 SVG 生成预览；点导出时复用这份字符串，所见即所得。
+- **字号线宽配套**：画布越宽需要的倍率越大（1280–1600 px→1–1.5×，1800–2000 px→2.8–3.4×，2400 px 以上→3.6–4.5×），预设和 AI 提示词都按这个经验值给，坐标轴边距与刻度数量也会随字号自动放大/稀疏，避免大字号把标签挤出画布。
+- **AI 路由**：`POST /api/dsh-distfit/chart-style`，请求 `{request, context}`，返回 `{ok, preset, style, notes, warnings}`；Host 用 `chartStyle.js` 的白名单与范围把模型输出裁剪成合法补丁（模型只能改样式，不能改数据、不能注入任意 CSS/HTML）。模型同样来自 DSH 的 `llm` 服务与助手默认模型。
+

@@ -1,0 +1,60 @@
+{
+  "name": "dsh-distfit",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "description": "DistFit 分布拟合与拟合优度检验面板（DSH 插件）：23 个分布族、K-S/A-D/CvM/χ² 检验、AIC 排名、AI 解读、可按论文/PPT 模板调整并导出图表的交互面板。",
+  "keywords": [
+    "dsh-plugin",
+    "distribution-fitting",
+    "goodness-of-fit",
+    "statistics"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": "./src/host/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "cordis.patch.yml",
+    "icon.svg"
+  ],
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.1.0"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-api-workspace-controller",
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node scripts/engine-test.mjs && node scripts/engine-test-analyze.mjs && node scripts/host-tool-test.mjs && node scripts/ai-summary-test.mjs && node scripts/chart-export-test.mjs && node scripts/chart-legend-test.mjs && node scripts/chart-style-test.mjs && node scripts/bundle-sim-test.mjs",
+    "test:bundle": "node scripts/bundle-sim-test.mjs",
+    "test:engine": "node scripts/engine-test.mjs",
+    "test:analyze": "node scripts/engine-test-analyze.mjs",
+    "test:host": "node scripts/host-tool-test.mjs",
+    "test:ai": "node scripts/ai-summary-test.mjs",
+    "test:chart": "node scripts/chart-export-test.mjs",
+    "test:legend": "node scripts/chart-legend-test.mjs",
+    "test:chartstyle": "node scripts/chart-style-test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

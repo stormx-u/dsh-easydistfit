@@ -1,0 +1,6 @@
+# DistFit plugin row. The node half (exports ".") runs in the Host process;
+# the `dsh.client` declaration in package.json makes the browser half
+# (exports "./client") load in the web GUI.
+- insert:
+    - id: dsh-distfit
+      name: dsh-distfit
