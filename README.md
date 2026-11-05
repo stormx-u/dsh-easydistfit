@@ -4,6 +4,21 @@
 
 界面是 GUI 左侧栏的独立面板「分布拟合」，点开即用；同时注册了 `distfit_fit` 工具，让对话里的助手也能直接拟合数据并给出排名建议。
 
+---
+
+## English summary
+
+**DistFit** is a [DeepSeek Harness](https://github.com/deepseek-ai/) (DSH) plugin that turns a numeric table into a distribution-fitting report. It fits **23 distribution families** to every column, runs **K-S / Anderson-Darling / Cramér–von Mises / χ²** goodness-of-fit tests (asymptotic p-values, optionally Monte-Carlo calibrated), ranks candidates by **AIC / BIC / Akaike weight**, and draws histogram+PDF, CDF, P-P and Q-Q charts as vector SVG with hover inspection and legend focus.
+
+Two things it does that most fitting scripts don't:
+
+- **AI interpretation** — after each run the host half streams a four-part reading of the results into the panel: *what the data's shape actually means* (centre/spread, skew direction, tails and outliers, range, whether the histogram is unimodal or has gaps, and what that implies for the process behind the numbers), which family and why, risks and caveats, next steps. Every statement is tied to a number in the table. Model calls happen in the host process; the browser never sees a credential.
+- **Publication-ready figures** — an export dialog with seven templates (CN dual-column journal, EN single-column, thesis, 16:9 slides, transparent slides, B/W print, default), adjustable size / fonts / stroke / axes / legend / grayscale / histogram-bar style, a **WYSIWYG preview** rendered off-screen at the exact export pixel size, and export to **SVG / PNG / JPG / PDF**. Figures follow the product's own dark/light theme and are re-tinted for white backgrounds on export.
+
+A `distfit_fit` tool is registered as well, so the assistant can run a fit straight from the conversation.
+
+Requirements: DSH `>= 0.1.7-rc.1`, Node.js 24+ for building and testing. **All statistics are plain JavaScript — no Python, no SciPy.** See [安装](#安装) for the install command and [docs/DESIGN.md](docs/DESIGN.md) for the architecture.
+
 ![密度图与排名](docs/screenshots/01-density.png)
 
 ![AI 解读](docs/screenshots/05-ai.png)
